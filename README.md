@@ -17,7 +17,7 @@ npm start            # http://localhost:3000
 npm run scrape       # refresh public/data/products.json manually
 ```
 
-On start, the server scrapes all stores if the data is missing or older than 6 hours, and then re-scrapes every 6 hours. Without the Supabase settings, everything works except accounts. The account page then says accounts aren't switched on.
+On start, the server scrapes all stores if the data is missing or older than 24 hours, and then re-scrapes every 24 hours. Without the Supabase settings, everything works except accounts. The account page then says accounts aren't switched on.
 
 ## Accounts (Supabase)
 
@@ -56,14 +56,14 @@ The site runs as static files plus one function. `netlify.toml` makes each Netli
 
 1. Connect the GitHub repo in Netlify. Build settings come from `netlify.toml`.
 2. Add the environment variables: Supabase (above), plus optionally `APIFY_TOKEN` and the other variables below.
-3. Keep deals fresh: Netlify only builds on push, so `.github/workflows/refresh-deals.yml` triggers a rebuild every 6 hours. Create a build hook (Site configuration → Build & deploy → Build hooks) and save its URL as the GitHub **repository** secret `NETLIFY_BUILD_HOOK`.
+3. Keep deals fresh: Netlify only builds on push, so `.github/workflows/refresh-deals.yml` triggers a rebuild once a day (03:00 UTC = 07:00 in Georgia). Create a build hook (Site configuration → Build & deploy → Build hooks) and save its URL as the GitHub **repository** secret `NETLIFY_BUILD_HOOK`.
 
 Each build downloads the previous `data/products.json` from the live site. Stores that fail during a build keep their last results, and the paid Apify source still refreshes only once a day.
 
 | Env var | Default | Purpose |
 |---|---|---|
 | `PORT` | `3000` | HTTP port (local server) |
-| `REFRESH_HOURS` | `6` | How often stores are re-scraped (local server) |
+| `REFRESH_HOURS` | `24` | How often stores are re-scraped (local server) |
 | `APIFY_TOKEN` | — | Enables RevZilla via the Apify actor `parseforge/revzilla-scraper` (paid) |
 | `APIFY_MAX_ITEMS` | `200` | Max RevZilla items per Apify run (cost cap) |
 | `APIFY_REFRESH_HOURS` | `24` | Minimum time between Apify runs |

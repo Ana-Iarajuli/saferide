@@ -14,7 +14,7 @@ const { default: login } = await import('./netlify/functions/login.mjs');
 
 const PUBLIC = path.join(ROOT, 'public');
 const PORT = Number(process.env.PORT) || 3000;
-const REFRESH_HOURS = Number(process.env.REFRESH_HOURS) || 6;
+const REFRESH_HOURS = Number(process.env.REFRESH_HOURS) || 24;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',

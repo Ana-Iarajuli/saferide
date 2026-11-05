@@ -5,7 +5,7 @@ name: Refresh deals
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # every 6 hours (UTC)
+    - cron: '0 3 * * *' # daily at 03:00 UTC (07:00 in Georgia)
   workflow_dispatch: # allows a manual run from the Actions tab
 
 jobs:
