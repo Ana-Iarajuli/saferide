@@ -12,7 +12,7 @@ const OUT = 'target="_blank" rel="noopener noreferrer nofollow"';
 let data;
 let product;
 
-const listLink = (params, label) => `<a href="./?${new URLSearchParams(params)}">${esc(label)}</a>`;
+const listLink = (params, label) => `<a href="sales.html?${new URLSearchParams(params)}">${esc(label)}</a>`;
 
 /** "$199" plus the store's own price when it charges in another currency. */
 function priceWithNative(p, amount, amountUSD) {
@@ -132,7 +132,7 @@ function render() {
 
   root.innerHTML = `
     <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href="./">${esc(t('pdp.allDeals'))}</a> <span>/</span> ${listLink({ category: p.category }, catLabel(p.category))} <span>/</span> ${listLink({ brand: p.brand }, p.brand)}
+      <a href="sales.html">${esc(t('pdp.allDeals'))}</a> <span>/</span> ${listLink({ category: p.category }, catLabel(p.category))} <span>/</span> ${listLink({ brand: p.brand }, p.brand)}
     </nav>
 
     <article class="pdp">
@@ -205,7 +205,7 @@ async function boot() {
   setRates(data.rates);
   product = data.byId.get(new URLSearchParams(location.search).get('id'));
   if (!product) {
-    root.innerHTML = `<div class="message"><h2>${t('pdp.gone')}</h2><p>${t('pdp.goneHint')} <a href="./">${t('pdp.browseAll')}</a></p></div>`;
+    root.innerHTML = `<div class="message"><h2>${t('pdp.gone')}</h2><p>${t('pdp.goneHint')} <a href="sales.html">${t('pdp.browseAll')}</a></p></div>`;
     return;
   }
   mountCurrencySwitch(render);

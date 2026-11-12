@@ -250,7 +250,7 @@ const VIEWS = {
         const { error } = await client.auth.updateUser({ password: form.elements.password.value });
         if (error) throw error;
         form.innerHTML = `<div class="form-msg ok">${esc(t('auth.reset.done'))}</div>
-          <a class="btn btn-lg cta" href="./">${esc(t('auth.profile.toDeals'))}</a>`;
+          <a class="btn btn-lg cta" href="sales.html">${esc(t('auth.profile.toDeals'))}</a>`;
       });
     });
   },
@@ -259,7 +259,7 @@ const VIEWS = {
     card(
       t('auth.verified.title'),
       esc(t('auth.verified.body', { name: usernameOf(user) })),
-      `<a class="btn btn-lg cta" href="./">${esc(t('auth.profile.toDeals'))}</a>`,
+      `<a class="btn btn-lg cta" href="sales.html">${esc(t('auth.profile.toDeals'))}</a>`,
     );
   },
 

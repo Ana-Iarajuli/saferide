@@ -140,7 +140,49 @@ export async function runScrape({ log = console.log } = {}) {
   await fs.writeFile(tmp, JSON.stringify(data));
   await fs.rename(tmp, DATA_FILE);
   log(`Saved ${data.products.length} products to ${path.relative(ROOT, DATA_FILE)}`);
+  await writeHomeSummary(data);
   return data;
+}
+
+export const HOME_FILE = path.join(path.dirname(DATA_FILE), 'home.json');
+const HOME_CATEGORIES = ['Helmets', 'Jackets & Vests', 'Gloves', 'Boots & Shoes'];
+
+/**
+ * Small file for the homepage (products.json is several MB): headline stats plus
+ * the best real deal in each main gear category, so the teaser isn't all cheap spare parts.
+ */
+export async function writeHomeSummary(data) {
+  const groups = new Map();
+  for (const p of data.products) {
+    if (!groups.has(p.matchKey)) groups.set(p.matchKey, []);
+    groups.get(p.matchKey).push(p);
+  }
+  const cheapest = [...groups.values()].map((g) => {
+    const best = g.reduce((a, b) => (b.priceUSD < a.priceUSD ? b : a));
+    const storeCount = new Set(g.map((p) => p.source)).size;
+    return { ...best, storeCount, isBest: storeCount > 1 };
+  });
+  const worthShowing = (p) => p.inStock !== false && p.images.length && p.discountPct > 0 && p.compareAtUSD >= 80;
+  const deals = HOME_CATEGORIES.map((c) =>
+    cheapest.filter((p) => p.category === c && worthShowing(p)).sort((a, b) => b.discountPct - a.discountPct || b.storeCount - a.storeCount)[0],
+  )
+    .filter(Boolean)
+    .map(({ id, source, title, brand, category, images, priceFrom, priceUSD, compareAtUSD, discountPct, storeCount, isBest }) => ({
+      id, source, title, brand, category, images: images.slice(0, 1), priceFrom, priceUSD, compareAtUSD, discountPct, storeCount, isBest,
+    }));
+
+  const summary = {
+    generatedAt: data.generatedAt,
+    rates: data.rates,
+    sources: data.sources.map(({ id, name, count }) => ({ id, name, count })),
+    stats: {
+      items: data.products.length,
+      stores: data.sources.filter((s) => s.count > 0).length,
+      topDiscount: Math.max(0, ...data.products.map((p) => p.discountPct || 0)),
+    },
+    deals,
+  };
+  await fs.writeFile(HOME_FILE, JSON.stringify(summary));
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

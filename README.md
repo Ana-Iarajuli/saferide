@@ -2,10 +2,15 @@
 
 A site for motorcycle riders in Georgia. Right now it has:
 
+- **Homepage** (`index.html`): explains SafeRide and shows every section as a stop on one winding road (learn → choose a bike → gear up → practice → ride together), with live deal numbers and four of the day's best deals.
 - **Sales**: compares motorcycle gear sales across online stores, finds the same product at different shops, and sends the shopper to the store's product page to buy.
 - **Accounts**: registration with a unique username, email verification, login with email or username, and password reset by email.
 - **Languages**: English and Georgian (ქართული). Add `?lang=ka` to a link to open it in Georgian.
-- **Placeholder sections** in the left menu: Beginner's guide, Reviews, Where to practice, Georiders.
+- **Beginner's guide** (`guide.html`) with three parts:
+  - **Get your licence** (`licence.html`): motorcycle categories, documents, exams and fees in Georgia, from the Service Agency's own pages. Each fact links to its source.
+  - **Riding schools** (`schools.html`): schools on a map of Georgia plus a card for each. Each card opens a detail page (`school.html?id=…`) where logged-in users can leave a star rating and comment.
+  - **Gear basics** (`gear-guide.html`): what to look for in each piece of gear, with links to that category on the Sales page.
+- **Placeholder sections** in the left menu: Reviews, Where to practice, Georiders.
 
 ## Run
 
@@ -95,6 +100,22 @@ If a store fails during a refresh, its products from the previous run are kept a
 - Each product gets a `matchKey`: brand + category + gender + the set of model words, with colors and filler words removed (`scraper/normalize.js`). Products with the same key at different stores are treated as the same item.
 - **Best offer only** (on by default) shows only the cheapest listing of each item. The product page shows a per-store comparison table with a "Go to store" link for each offer.
 
+## Beginner's guide content
+
+- **Licence rules** live in `public/js/content/licence.js`, in English and Georgian. They were checked against sa.gov.ge on the date in `CHECKED`. Fees and rules change, so re-check the linked pages now and then and update the date.
+- **Schools** are in `public/content/schools.json`. They were seeded from OpenStreetMap's named driving schools, so **none are confirmed to teach motorcycles yet**. Edit that file to keep the list honest:
+  - add a school: give it a unique `id` (lowercase letters, digits and dashes), its name in English and Georgian, city, `lat`/`lng`, and optionally `description`, `phone` and `website`.
+  - after you call a school, put the categories it teaches in `categories` (e.g. `["A1", "A2", "A"]`).
+  - never change an existing `id`: its reviews are stored under it.
+  - to add a city, also add a `city.<id>` translation in `public/js/i18n.js`.
+- **Reviews** are stored in Supabase. Re-run `supabase/schema.sql` once (it is safe to re-run) to create the `school_reviews` table and `school_ratings` view. Anyone can read reviews. Only logged-in users can write one, one per school, and only the author can edit or delete it.
+- **Maps** use Leaflet and standard OpenStreetMap tiles (no API key). A CSS filter darkens the tiles to fit the themes.
+- **Gear advice** is in `public/js/content/gear.js`.
+
+## Homepage image
+
+`public/img/hero.svg` is placeholder art. To use a real photo, put it in `public/img/` (a wide image, about 2:1, at least 1600px across), point the `<img>` in `public/index.html` at it, and remove the `is-placeholder` class. That class only re-tints the placeholder to match the theme.
+
 ## Translations
 
 All UI text lives in `public/js/i18n.js`: English is the source, and each language is one object. To add a language (e.g. Russian), copy the `ka` block, translate it, and add it to `LANGS` and `DICTS`. Missing keys fall back to English. Static HTML uses `data-i18n="key"` attributes; scripts call `t('key', { vars })`.
@@ -106,14 +127,21 @@ server.js                    local server (gzip data, scheduled refresh, /config
 netlify/functions/login.mjs  username login (Netlify Function; server.js runs it locally)
 supabase/schema.sql          usernames table + functions, run once in Supabase
 scripts/write-config.js      writes public/config.json (Supabase URL + publishable key) at build
-scraper/index.js             runs all sources, normalizes, writes public/data/products.json
+scraper/index.js             runs all sources, normalizes, writes public/data/products.json + home.json (homepage summary)
 scraper/sources.js           the store list
 scraper/adapters/            shopify, fcmoto, dainese, apify, jsonld (fallback)
 scraper/normalize.js         brand/category/gender/size detection, match keys
-public/index.html            sales listing + filters        (js/list.js)
+public/index.html            homepage                       (js/home.js; hero art in img/hero.svg)
+public/sales.html            sales listing + filters        (js/list.js)
 public/product.html          deal details + comparison      (js/product.js)
 public/account.html          login / register / reset       (js/account.js, js/auth.js)
-public/{guide,reviews,practice,georiders}.html   placeholder sections (js/page.js)
+public/guide.html            Beginner's guide hub            (js/guide.js)
+public/licence.html          licence rules                   (js/licence-page.js, js/content/licence.js)
+public/schools.html          schools map + cards             (js/schools.js, js/schools-data.js)
+public/school.html           school details + reviews        (js/school.js)
+public/gear-guide.html       gear advice                     (js/gear-page.js, js/content/gear.js)
+public/content/schools.json  the school list (edit by hand)
+public/{reviews,practice,georiders}.html   placeholder sections (js/page.js)
 public/js/layout.js          left menu, language / theme pickers, account menu
 public/js/i18n.js            translations
 ```

@@ -65,3 +65,62 @@ $$;
 
 revoke execute on function public.email_for_login(text) from public, anon, authenticated;
 grant execute on function public.email_for_login(text) to service_role;
+
+-- ---------------------------------------------------------------------------
+-- School reviews (schools.html / school.html). Added later: re-running this whole file is safe.
+-- Schools themselves live in public/content/schools.json; school_id is that file's "id".
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.school_reviews (
+  id bigint generated always as identity primary key,
+  school_id text not null check (school_id ~ '^[a-z0-9-]{1,64}$'),
+  user_id uuid not null default auth.uid() references public.profiles (id) on delete cascade,
+  rating smallint not null check (rating between 1 and 5),
+  comment text not null default '' check (char_length(comment) <= 1000),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (school_id, user_id) -- one review per person per school; writing again updates it
+);
+
+create index if not exists school_reviews_school_idx on public.school_reviews (school_id, created_at desc);
+
+alter table public.school_reviews enable row level security;
+
+drop policy if exists "Reviews are public" on public.school_reviews;
+create policy "Reviews are public" on public.school_reviews for select using (true);
+
+drop policy if exists "Users add their own review" on public.school_reviews;
+create policy "Users add their own review" on public.school_reviews for insert to authenticated
+  with check (user_id = auth.uid());
+
+drop policy if exists "Users edit their own review" on public.school_reviews;
+create policy "Users edit their own review" on public.school_reviews for update to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists "Users delete their own review" on public.school_reviews;
+create policy "Users delete their own review" on public.school_reviews for delete to authenticated
+  using (user_id = auth.uid());
+
+create or replace function public.touch_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists school_reviews_touch on public.school_reviews;
+create trigger school_reviews_touch before update on public.school_reviews
+  for each row execute function public.touch_updated_at();
+
+-- average and count per school, for the school cards
+create or replace view public.school_ratings
+with (security_invoker = true) as
+  select school_id, round(avg(rating)::numeric, 1) as average, count(*)::int as count
+  from public.school_reviews
+  group by school_id;
+
+grant select on public.school_ratings to anon, authenticated;

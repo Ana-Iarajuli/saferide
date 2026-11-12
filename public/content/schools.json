@@ -1,0 +1,14 @@
+{
+  "_about": "Schools shown on schools.html. Seeded from OpenStreetMap (amenity=driving_school, named entries only). Edit freely: id must stay stable once people have reviewed a school. categories: list of licence categories confirmed with the school (e.g. [\"AM\",\"A1\",\"A2\",\"A\"]), or [] if not confirmed yet. description / address / phone / website are optional; fill them in after contacting the school.",
+  "schools": [
+    { "id": "carroad-tbilisi", "name": { "en": "Carroad", "ka": "ქარროუდი" }, "city": "tbilisi", "lat": 41.7207, "lng": 44.7463, "categories": [], "source": "https://www.openstreetmap.org/node/4243007541" },
+    { "id": "rally-tbilisi", "name": { "en": "Rally Driving School", "ka": "ავტოსკოლა Rally" }, "city": "tbilisi", "lat": 41.7902, "lng": 44.8182, "categories": [], "source": "https://www.openstreetmap.org/node/9759149042" },
+    { "id": "good-drive-tbilisi", "name": { "en": "Good Drive", "ka": "Good Drive" }, "city": "tbilisi", "lat": 41.7258, "lng": 44.7705, "categories": [], "source": "https://www.openstreetmap.org/node/13909822705" },
+    { "id": "drive-line-batumi", "name": { "en": "Drive Line", "ka": "Drive Line" }, "city": "batumi", "lat": 41.6419, "lng": 41.6343, "categories": [], "source": "https://www.openstreetmap.org/node/10180770129" },
+    { "id": "theory-practice-batumi", "name": { "en": "Teoria da Praktika", "ka": "თეორია და პრაქტიკა" }, "city": "batumi", "lat": 41.6379, "lng": 41.6360, "categories": [], "source": "https://www.openstreetmap.org/node/11405327694" },
+    { "id": "dautme-kveits-batumi", "name": { "en": "Dautme Kveits", "ka": "დაუთმე ქვეითს" }, "city": "batumi", "lat": 41.6445, "lng": 41.6282, "categories": [], "source": "https://www.openstreetmap.org/node/10067020182" },
+    { "id": "asvs-batumi", "name": { "en": "ASVS", "ka": "ასვს" }, "city": "batumi", "lat": 41.6335, "lng": 41.6276, "categories": [], "source": "https://www.openstreetmap.org/node/4207580489" },
+    { "id": "mega-kutaisi", "name": { "en": "Mega", "ka": "მეგა" }, "city": "kutaisi", "lat": 42.2624, "lng": 42.6987, "categories": [], "source": "https://www.openstreetmap.org/node/10968105210" },
+    { "id": "city-drive-telavi", "name": { "en": "City Drive", "ka": "City Drive" }, "city": "telavi", "lat": 41.9251, "lng": 45.4719, "categories": [], "source": "https://www.openstreetmap.org/way/1567462284" }
+  ]
+}

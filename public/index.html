@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#03070b">
+  <meta name="theme-color" content="#0b1a27">
   <script>
     try {
       document.documentElement.dataset.theme = localStorage.getItem('theme') || 'tron';
@@ -12,8 +12,8 @@
       document.documentElement.dataset.theme = 'tron';
     }
   </script>
-  <title data-i18n="sales.pageTitle">Motorcycle Gear Deals Compared — SafeRide</title>
-  <meta name="description" content="Compare motorcycle gear sales from RevZilla, FC-Moto, Alpinestars, Louis, Dainese, Cycle Gear, MotorcycleGear.com and REV'IT in one place.">
+  <title data-i18n="home.pageTitle">SafeRide — Ride safer in Georgia</title>
+  <meta name="description" content="SafeRide brings everything a rider in Georgia needs into one place: moto schools, bike reviews, places to practice, gear deals compared across 8 stores, and Georgian riders on YouTube.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,14 +25,7 @@
     <div class="header-inner">
       <button type="button" class="icon-btn nav-toggle" id="nav-toggle" aria-controls="sidebar" aria-expanded="false" aria-label="Open menu" data-i18n-aria-label="nav.open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <a class="logo" href="./" aria-label="SafeRide"><svg class="logo-icon" viewBox="0 0 100 70" fill="none" aria-hidden="true"><line class="logo-slash" x1="82" y1="10" x2="16" y2="62" stroke="currentColor" stroke-width="1.2"/><g transform="translate(49 36) rotate(33.7) scale(0.84)" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M41 -7 L23 -21 L8 -18 C2 -17 -2 -13 -8 -12 L-24 -14 L-36 -17" stroke-width="2.4"/><path d="M37 -3 L22 -6 L6 4 L-14 4 L-21 -5" stroke-width="2"/><path d="M29 -13 L11 -11 L-3 -3" stroke-width="2.8"/><path d="M30 0 L25 -13 M-30 0 L-13 2" stroke-width="1.8"/><circle cx="-30" cy="0" r="11" stroke-width="2.8"/><circle cx="-30" cy="0" r="4.5" stroke-width="1.4"/><circle cx="30" cy="0" r="11" stroke-width="2.8"/><circle cx="30" cy="0" r="4.5" stroke-width="1.4"/></g></svg><span class="logo-word">Safe<span>Ride</span></span></a>
-      <form class="header-search" id="search-form" role="search">
-        <input id="q" type="search" placeholder="Search helmets, jackets, brands…" data-i18n-placeholder="header.search" aria-label="Search deals" data-i18n-aria-label="header.searchLabel" autocomplete="off">
-      </form>
       <div class="header-tools">
-        <label class="currency-switch">
-          <span class="sr-only" data-i18n="header.currency">Currency</span>
-          <select id="currency"></select>
-        </label>
         <div class="dropdown" id="lang-picker"></div>
         <div class="dropdown" id="theme-picker"></div>
         <div class="dropdown" id="user-menu"></div>
@@ -43,56 +36,63 @@
   <div class="shell">
     <nav class="sidebar" id="sidebar"></nav>
     <div class="page">
-      <section class="hero">
-        <div class="wrap">
-          <h1><span data-i18n="hero.title">Every motorcycle gear sale.</span> <em data-i18n="hero.em">One place.</em></h1>
-          <p id="hero-stats" class="hero-stats" data-i18n="hero.loading">Loading deals…</p>
-          <div id="store-strip" class="store-strip"></div>
-        </div>
-      </section>
+      <main class="wrap home">
 
-      <main class="wrap layout">
-        <aside class="filters" id="filters" aria-label="Filters" data-i18n-aria-label="filters.title">
-          <div class="filters-head">
-            <h2 data-i18n="filters.title">Filters</h2>
-            <button type="button" class="link-btn" id="clear-filters" data-i18n="filters.clear">Clear all</button>
-            <button type="button" class="icon-btn close-filters" id="close-filters" aria-label="Close filters" data-i18n-aria-label="filters.close">✕</button>
+        <!-- 1. What SafeRide is: the picture + a two-line pitch -->
+        <section class="home-hero">
+          <figure class="hero-frame">
+            <!-- Placeholder art: replace img/hero.svg with a real photo and drop the is-placeholder class -->
+            <img class="hero-art is-placeholder" src="img/hero.svg" alt="A rider on a motorcycle" data-i18n-alt="home.imageAlt" width="1600" height="800" fetchpriority="high">
+            <span class="hud hud-tl" aria-hidden="true"></span><span class="hud hud-tr" aria-hidden="true"></span>
+            <span class="hud hud-bl" aria-hidden="true"></span><span class="hud hud-br" aria-hidden="true"></span>
+          </figure>
+          <div class="hero-copy">
+            <h1 data-i18n="home.title">Everything a rider in Georgia needs, on one road</h1>
+            <p class="hero-lead" data-i18n="home.lead">SafeRide joins moto schools, bike reviews, practice spots, gear deals and motorcycle YouTubers from around the world. Follow the road from your first lesson to your first long ride.</p>
+            <div class="hero-actions">
+              <a class="btn btn-lg cta" href="guide.html" data-i18n="home.ctaStart">Start with lessons</a>
+              <a class="btn btn-lg" href="sales.html" data-i18n="home.ctaDeals">Browse gear deals</a>
+            </div>
           </div>
-          <div id="filter-body"></div>
-        </aside>
-
-        <section class="results" aria-live="polite">
-          <div class="toolbar">
-            <button type="button" class="btn-outline open-filters" id="open-filters"><span data-i18n="filters.title">Filters</span> <span id="filter-count"></span></button>
-            <p id="result-count" class="result-count"></p>
-            <label class="sort">
-              <span data-i18n="sort.label">Sort</span>
-              <select id="sort">
-                <option value="discount" data-i18n="sort.discount">Biggest discount</option>
-                <option value="savings" data-i18n="sort.savings">Biggest savings</option>
-                <option value="price-asc" data-i18n="sort.price-asc">Price: low to high</option>
-                <option value="price-desc" data-i18n="sort.price-desc">Price: high to low</option>
-                <option value="compared" data-i18n="sort.compared">Most stores compared</option>
-                <option value="name" data-i18n="sort.name">Name A–Z</option>
-              </select>
-            </label>
-          </div>
-          <div id="active-chips" class="active-chips"></div>
-          <div id="grid" class="grid"></div>
-          <div class="load-more-wrap"><button type="button" id="load-more" class="btn" hidden></button></div>
         </section>
-      </main>
 
-      <div class="scrim" id="scrim" hidden></div>
+        <!-- 2. How the sections connect: every menu item is a stop on one winding road -->
+        <section class="journey" id="journey">
+          <header class="home-head">
+            <h2 data-i18n="home.journey.title">Five stops on the same road</h2>
+            <p data-i18n="home.journey.lead">Each section helps with one part of riding. Start wherever you are now.</p>
+          </header>
+          <div class="road">
+            <!-- passes through the five stop nodes at x = 10/30/50/70/90% and y = 40/80 (see .stop-node offsets in CSS) -->
+            <svg class="road-line" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true">
+              <path class="road-glow" pathLength="1" d="M0 60 C40 60 60 40 100 40 S250 80 300 80 S450 40 500 40 S650 80 700 80 S850 40 900 40 S960 60 1000 60"/>
+              <path class="road-core" pathLength="1" d="M0 60 C40 60 60 40 100 40 S250 80 300 80 S450 40 500 40 S650 80 700 80 S850 40 900 40 S960 60 1000 60"/>
+            </svg>
+            <ol class="route" id="route"></ol>
+          </div>
+        </section>
+
+        <!-- 3. A taste of the live section -->
+        <section class="home-deals" id="home-deals" hidden>
+          <header class="home-head row">
+            <h2 data-i18n="home.deals.title">Gear on sale today</h2>
+            <a class="link-btn" href="sales.html" data-i18n="home.deals.all">See all deals</a>
+          </header>
+          <div class="grid" id="home-deal-grid"></div>
+        </section>
+
+        <!-- 4. Community / account -->
+        <section class="home-join" id="home-join"></section>
+      </main>
 
       <footer class="site-footer">
         <div class="wrap">
-          <p data-i18n="footer.sales">SafeRide compares prices only — purchases happen on each store's own website. Prices and stock are checked periodically and may have changed; always confirm on the store's page.</p>
+          <p data-i18n="footer.tagline">SafeRide — gear, skills and community for riders in Georgia.</p>
         </div>
       </footer>
     </div>
   </div>
 
-  <script type="module" src="js/list.js"></script>
+  <script type="module" src="js/home.js"></script>
 </body>
 </html>

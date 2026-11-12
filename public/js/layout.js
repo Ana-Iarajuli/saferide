@@ -7,18 +7,33 @@ import { esc } from './shared.js';
 
 const icon = (paths) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 
+export const HOME = { id: 'home', href: './', icon: icon('<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>') };
+
+// Sections in the order of a rider's journey: learn → choose a bike → gear up → practice → ride together.
+// The homepage draws these as one connected route, so keep the order meaningful.
 export const NAV = [
-  { id: 'guide', href: 'guide.html', soon: true, icon: icon('<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/>') },
+  {
+    id: 'guide',
+    href: 'guide.html',
+    icon: icon('<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/>'),
+    // in the order a beginner needs them
+    children: [
+      { id: 'licence', href: 'licence.html' },
+      { id: 'schools', href: 'schools.html' },
+      { id: 'gear', href: 'gear-guide.html' },
+    ],
+  },
   { id: 'reviews', href: 'reviews.html', soon: true, icon: icon('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>') },
+  { id: 'sales', href: 'sales.html', icon: icon('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8" r="1.5"/>') },
   { id: 'practice', href: 'practice.html', soon: true, icon: icon('<path d="M9.5 4h5l4 15h-13z"/><path d="M8 10h8M7 15h10M3 20h18"/>') },
-  { id: 'sales', href: './', icon: icon('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8" r="1.5"/>') },
   { id: 'georiders', href: 'georiders.html', soon: true, icon: icon('<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9v6l5-3z"/>') },
 ];
 
 const THEMES = [
-  { id: 'tron', name: 'Tron · Cyan', colors: ['#00eaff', '#03070b'], bar: '#03070b' },
-  { id: 'tron-orange', name: 'Tron · Orange', colors: ['#ff8a1a', '#080402'], bar: '#080402' },
-  { id: 'classic', name: 'Classic', colors: ['#e4572e', '#f6f5f2'], bar: '#141416' },
+  { id: 'tron', name: 'Tron · Blue', colors: ['#3ee6ff', '#0b1a27'], bar: '#0b1a27' },
+  { id: 'tron-red', name: 'Tron · Red', colors: ['#ff4d5e', '#1e0d12'], bar: '#1e0d12' },
+  { id: 'tron-orange', name: 'Tron · Orange', colors: ['#ff9a3c', '#1b1007'], bar: '#1b1007' },
+  { id: 'classic', name: 'Classic', colors: ['#e4572e', '#f8f7f4'], bar: '#1c1c20' },
 ];
 
 const $ = (id) => document.getElementById(id);
@@ -63,10 +78,16 @@ function mountSidebar(active) {
       <button type="button" class="icon-btn" id="nav-close" aria-label="${esc(t('nav.close'))}">✕</button>
     </div>
     <ul class="nav-list">
-      ${NAV.map(
-        (n) => `<li><a class="nav-item ${n.id === active ? 'on' : ''}" href="${n.href}" ${n.id === active ? 'aria-current="page"' : ''}>
-          ${n.icon}<span>${esc(t(`nav.${n.id}`))}</span>${n.soon ? `<small class="nav-soon">${esc(t('nav.soon'))}</small>` : ''}</a></li>`,
-      ).join('')}
+      ${[HOME, ...NAV].map((n) => {
+        const inside = n.children?.some((c) => c.id === active);
+        const sub = n.children
+          ? `<ul class="nav-sub">${n.children
+              .map((c) => `<li><a class="nav-subitem ${c.id === active ? 'on' : ''}" href="${c.href}" ${c.id === active ? 'aria-current="page"' : ''}>${esc(t(`nav.${c.id}`))}</a></li>`)
+              .join('')}</ul>`
+          : '';
+        return `<li><a class="nav-item ${n.id === active ? 'on' : ''} ${inside ? 'is-parent' : ''}" href="${n.href}" ${n.id === active ? 'aria-current="page"' : ''}>
+          ${n.icon}<span>${esc(t(`nav.${n.id}`))}</span>${n.soon ? `<small class="nav-soon">${esc(t('nav.soon'))}</small>` : ''}</a>${sub}</li>`;
+      }).join('')}
     </ul>`;
 
   const scrim = document.createElement('div');
