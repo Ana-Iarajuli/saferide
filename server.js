@@ -10,6 +10,7 @@ loadEnvFile(path.join(ROOT, '.env'));
 // imported after .env is loaded, since they read process.env
 const { runScrape, DATA_FILE } = await import('./scraper/index.js');
 const { publicConfig } = await import('./scripts/write-config.js');
+const { fetchRiders } = await import('./scripts/fetch-riders.js');
 const { default: login } = await import('./netlify/functions/login.mjs');
 
 const PUBLIC = path.join(ROOT, 'public');
@@ -60,6 +61,9 @@ function refresh() {
   if (!scraping) {
     scraping = runScrape({ log: (m) => console.log(`[scrape] ${m}`) })
       .catch((e) => console.error('[scrape] failed:', e))
+      // the Georiders page's latest videos refresh on the same schedule as the deals
+      .then(() => fetchRiders({ log: (m) => console.log(`[riders] ${m}`) }))
+      .catch((e) => console.error('[riders] failed:', e))
       .finally(() => (scraping = null));
   }
   return scraping;

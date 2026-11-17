@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#03070b">
+  <meta name="theme-color" content="#050b12">
   <script>
     try {
       document.documentElement.dataset.theme = localStorage.getItem('theme') || 'tron';
@@ -12,14 +12,14 @@
       document.documentElement.dataset.theme = 'tron';
     }
   </script>
-  <title data-i18n="georiders.title">SafeRide</title>
+  <title data-i18n="georiders.pageTitle">SafeRide</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&family=Noto+Sans+Georgian:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body data-page="georiders">
+<body>
   <header class="site-header">
     <div class="header-inner">
       <button type="button" class="icon-btn nav-toggle" id="nav-toggle" aria-controls="sidebar" aria-expanded="false" aria-label="Open menu" data-i18n-aria-label="nav.open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -35,7 +35,42 @@
   <div class="shell">
     <nav class="sidebar" id="sidebar"></nav>
     <div class="page">
-      <main class="wrap soon-page" id="page"></main>
+      <main class="wrap riders-page">
+        <header class="doc-head">
+          <h1 data-i18n="georiders.title">Georiders</h1>
+          <p class="doc-lead" data-i18n="georiders.lead"></p>
+        </header>
+        <div class="pill-row rider-topics" id="topics" role="group" aria-label="Topics" data-i18n-aria-label="georiders.topics"></div>
+
+        <section class="riders-block" id="latest" hidden aria-labelledby="latest-title">
+          <h2 id="latest-title" data-i18n="georiders.latest">Latest videos</h2>
+          <div class="video-row" id="latest-grid"></div>
+        </section>
+
+        <section class="riders-block" aria-labelledby="ge-title">
+          <div class="riders-head">
+            <div>
+              <h2 id="ge-title" data-i18n="georiders.fromGe">From Georgia</h2>
+              <p data-i18n="georiders.fromGeLead">Channels in Georgian.</p>
+            </div>
+            <span class="muted" id="count-ge"></span>
+          </div>
+          <div class="channel-grid" id="grid-ge"></div>
+        </section>
+
+        <section class="riders-block" aria-labelledby="intl-title">
+          <div class="riders-head">
+            <div>
+              <h2 id="intl-title" data-i18n="georiders.fromIntl">From around the world</h2>
+              <p data-i18n="georiders.fromIntlLead"></p>
+            </div>
+            <span class="muted" id="count-intl"></span>
+          </div>
+          <div class="channel-grid" id="grid-intl"></div>
+        </section>
+
+        <p class="muted riders-suggest" data-i18n="georiders.suggest"></p>
+      </main>
 
       <footer class="site-footer">
         <div class="wrap">
@@ -45,6 +80,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/page.js"></script>
+  <script type="module" src="js/georiders.js"></script>
 </body>
 </html>

@@ -10,6 +10,6 @@
   "scripts": {
     "start": "node server.js",
     "scrape": "node scraper/index.js",
-    "build": "node scripts/write-config.js && node scraper/index.js"
+    "build": "node scripts/write-config.js && node scripts/fetch-riders.js && node scraper/index.js"
   }
 }

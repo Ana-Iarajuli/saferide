@@ -10,7 +10,8 @@ A site for motorcycle riders in Georgia. Right now it has:
   - **Get your licence** (`licence.html`): motorcycle categories, documents, exams and fees in Georgia, from the Service Agency's own pages. Each fact links to its source.
   - **Riding schools** (`schools.html`): schools on a map of Georgia plus a card for each. Each card opens a detail page (`school.html?id=…`) where logged-in users can leave a star rating and comment.
   - **Gear basics** (`gear-guide.html`): what to look for in each piece of gear, with links to that category on the Sales page.
-- **Placeholder sections** in the left menu: Reviews, Where to practice, Georiders.
+- **Georiders** (`georiders.html`): motorcycle YouTubers, Georgian first, then international, filterable by topic (reviews, riding technique, gear, maintenance, travel, motorsport, news), with their newest videos.
+- **Placeholder sections** in the top navigation (dimmed until they open): Reviews, Where to practice.
 
 ## Run
 
@@ -110,7 +111,13 @@ If a store fails during a refresh, its products from the previous run are kept a
   - to add a city, also add a `city.<id>` translation in `public/js/i18n.js`.
 - **Reviews** are stored in Supabase. Re-run `supabase/schema.sql` once (it is safe to re-run) to create the `school_reviews` table and `school_ratings` view. Anyone can read reviews. Only logged-in users can write one, one per school, and only the author can edit or delete it.
 - **Maps** use Leaflet and standard OpenStreetMap tiles (no API key). A CSS filter darkens the tiles to fit the themes.
-- **Gear advice** is in `public/js/content/gear.js`.
+- **Gear advice** is in `public/js/content/gear.js`. The rider diagram on that page is an SVG drawn in `public/js/gear-page.js`; each piece of gear is a group whose `data-part` matches a section `id` in the content file.
+
+## Georiders
+
+- **Channels** are listed by hand in `public/content/riders.json`: YouTube channel id, @handle, name, `from` (`ge` or `intl`), topics, an optional `store: true` for shop or dealer channels, and a short description in English and Georgian. Before adding a channel, check its feed at `https://www.youtube.com/feeds/videos.xml?channel_id=<id>`. YouTube auto-translates channel names in search results, so a Georgian-looking name can belong to a foreign channel; the feed shows the real name and the language of its video titles.
+- **Newest videos** come from those free RSS feeds (no API key). `scripts/fetch-riders.js` writes `public/data/riders.json` during `npm run build` and on the local server's daily refresh. A channel whose feed fails keeps its previous videos, and the build never fails because of YouTube.
+- Channels with no upload for a year are shown last, with a dashed outline and "No new videos since …".
 
 ## Homepage image
 
@@ -141,8 +148,9 @@ public/schools.html          schools map + cards             (js/schools.js, js/
 public/school.html           school details + reviews        (js/school.js)
 public/gear-guide.html       gear advice                     (js/gear-page.js, js/content/gear.js)
 public/content/schools.json  the school list (edit by hand)
-public/{reviews,practice,georiders}.html   placeholder sections (js/page.js)
-public/js/layout.js          left menu, language / theme pickers, account menu
+public/georiders.html        YouTubers + newest videos      (js/georiders.js, content/riders.json, scripts/fetch-riders.js)
+public/{reviews,practice}.html   placeholder sections (js/page.js)
+public/js/layout.js          top navigation (drawer on small screens), language / theme pickers, account menu
 public/js/i18n.js            translations
 ```
 

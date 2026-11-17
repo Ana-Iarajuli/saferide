@@ -11,12 +11,26 @@ document.title = t('home.pageTitle');
 
 const $ = (id) => document.getElementById(id);
 
+// One road segment per gap: into stop 1, between stops, and out of stop 5. Stops sit at
+// x = 117/350/584/818/1051 and y = 30 or 70 in the 1168x100 viewBox (see .stop-node in style.css).
+const ROAD_SEGMENTS = [
+  'M0 50C60 50 60 30 117 30',
+  'M117 30C174 30 290 70 350 70',
+  'M350 70C410 70 525 30 584 30',
+  'M584 30C643 30 757 70 818 70',
+  'M818 70C879 70 990 30 1051 30',
+  'M1051 30C1112 30 1110 50 1168 50',
+];
+
 function renderRoute() {
+  // the road is solid as far as the last section that is open, dashed beyond it
+  const lastLive = NAV.findLastIndex((n) => !n.soon);
+  $('road-line').innerHTML = ROAD_SEGMENTS.map((d, i) => `<path d="${d}" ${i > lastLive ? 'class="road-ahead"' : ''}/>`).join('');
   $('route').innerHTML = NAV.map(
-    (n) => `
+    (n, i) => `
     <li class="stop ${n.soon ? 'is-soon' : 'is-live'}">
       <a href="${n.href}">
-        <span class="stop-node" aria-hidden="true">${n.icon}</span>
+        <span class="stop-node" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
         <strong class="stop-verb">${esc(t(`step.${n.id}.verb`))}</strong>
         <span class="stop-section">${esc(t(`nav.${n.id}`))}</span>
         <span class="stop-desc">${esc(t(`step.${n.id}.desc`))}</span>

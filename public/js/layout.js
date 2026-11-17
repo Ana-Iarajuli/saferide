@@ -1,5 +1,7 @@
-// Page chrome shared by every page: left navigation, language / theme pickers and the account menu.
-// Each page has empty placeholders (#sidebar, #lang-picker, #theme-picker, #user-menu) that this fills.
+// Page chrome shared by every page: the top navigation bar (a slide-out drawer on narrow screens),
+// language / theme pickers and the account menu.
+// Each page has empty placeholders (#sidebar, #lang-picker, #theme-picker, #user-menu) that this fills;
+// the top bar's link row is inserted after the logo.
 
 import { t, lang, LANGS, setLang, applyI18n } from './i18n.js';
 import { getClient, onUserChange, usernameOf } from './auth.js';
@@ -26,11 +28,11 @@ export const NAV = [
   { id: 'reviews', href: 'reviews.html', soon: true, icon: icon('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>') },
   { id: 'sales', href: 'sales.html', icon: icon('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8" r="1.5"/>') },
   { id: 'practice', href: 'practice.html', soon: true, icon: icon('<path d="M9.5 4h5l4 15h-13z"/><path d="M8 10h8M7 15h10M3 20h18"/>') },
-  { id: 'georiders', href: 'georiders.html', soon: true, icon: icon('<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9v6l5-3z"/>') },
+  { id: 'georiders', href: 'georiders.html', icon: icon('<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9v6l5-3z"/>') },
 ];
 
 const THEMES = [
-  { id: 'tron', name: 'Tron · Blue', colors: ['#3ee6ff', '#0b1a27'], bar: '#0b1a27' },
+  { id: 'tron', name: 'Tron · Blue', colors: ['#2fe0ff', '#050b12'], bar: '#050b12' },
   { id: 'tron-red', name: 'Tron · Red', colors: ['#ff4d5e', '#1e0d12'], bar: '#1e0d12' },
   { id: 'tron-orange', name: 'Tron · Orange', colors: ['#ff9a3c', '#1b1007'], bar: '#1b1007' },
   { id: 'classic', name: 'Classic', colors: ['#e4572e', '#f8f7f4'], bar: '#1c1c20' },
@@ -66,7 +68,32 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') for (const close of [...openMenus]) close();
 });
 
-// ---- sidebar ----------------------------------------------------------------
+// ---- top navigation (wide screens) -----------------------------------------
+
+function mountTopNav(active) {
+  const logo = document.querySelector('.site-header .logo');
+  if (!logo) return;
+  const nav = document.createElement('nav');
+  nav.className = 'topnav';
+  nav.setAttribute('aria-label', t('nav.label'));
+  // open sections first, upcoming ones (dimmed) after them, as in the design
+  nav.innerHTML = [HOME, ...NAV.filter((n) => !n.soon), ...NAV.filter((n) => n.soon)]
+    .map((n) => {
+      const on = n.id === active || n.children?.some((c) => c.id === active);
+      const link = `<a class="topnav-link ${on ? 'on' : ''} ${n.soon ? 'is-soon' : ''}" href="${n.href}" ${n.id === active ? 'aria-current="page"' : ''}>${esc(t(`nav.${n.id}`))}</a>`;
+      if (!n.children) return link;
+      // sub-pages open on hover or keyboard focus (CSS :hover / :focus-within)
+      return `<div class="topnav-group">${link}
+        <div class="topnav-sub">${n.children
+          .map((c) => `<a class="${c.id === active ? 'on' : ''}" href="${c.href}" ${c.id === active ? 'aria-current="page"' : ''}>${esc(t(`nav.${c.id}`))}</a>`)
+          .join('')}</div>
+      </div>`;
+    })
+    .join('');
+  logo.after(nav);
+}
+
+// ---- drawer navigation (narrow screens) -------------------------------------
 
 function mountSidebar(active) {
   const nav = $('sidebar');
@@ -112,15 +139,10 @@ function mountSidebar(active) {
 function mountLangPicker() {
   const box = $('lang-picker');
   if (!box) return;
-  const cur = LANGS.find((l) => l.id === lang);
-  box.innerHTML = `
-    <button type="button" class="tool-btn lang-btn" aria-haspopup="menu" aria-expanded="false" aria-label="${esc(t('lang.change'))}" title="${esc(t('lang.title'))}">${esc(cur.short)}</button>
-    <div class="menu" role="menu" hidden>
-      <h3>${esc(t('lang.title'))}</h3>
-      ${LANGS.map((l) => `<button type="button" class="menu-item" role="menuitemradio" aria-checked="${l.id === lang}" data-lang="${l.id}" lang="${l.id}"><span class="lang-code">${esc(l.short)}</span>${esc(l.name)}</button>`).join('')}
-    </div>`;
-  dropdown(box.querySelector('button'), box.querySelector('.menu'));
-  box.querySelector('.menu').addEventListener('click', (e) => {
+  box.innerHTML = `<div class="lang-switch" role="group" aria-label="${esc(t('lang.title'))}">${LANGS.map(
+    (l) => `<button type="button" class="${l.id === lang ? 'on' : ''}" aria-pressed="${l.id === lang}" data-lang="${l.id}" lang="${l.id}" title="${esc(l.name)}">${esc(l.short)}</button>`,
+  ).join('')}</div>`;
+  box.addEventListener('click', (e) => {
     const id = e.target.closest('[data-lang]')?.dataset.lang;
     if (id && id !== lang) setLang(id);
   });
@@ -175,7 +197,7 @@ function renderUserMenu(box, user) {
   }
   const name = usernameOf(user);
   box.innerHTML = `
-    <button type="button" class="tool-btn avatar-btn" aria-haspopup="menu" aria-expanded="false" aria-label="${esc(t('user.menu'))}" title="${esc(name)}">${esc(name.slice(0, 1).toUpperCase())}</button>
+    <button type="button" class="user-btn" aria-haspopup="menu" aria-expanded="false" aria-label="${esc(t('user.menu'))}"><span class="avatar-ring">${esc(name.slice(0, 2).toUpperCase())}</span><span class="user-name">${esc(name)}</span><span class="caret" aria-hidden="true">▾</span></button>
     <div class="menu" role="menu" hidden>
       <h3>${esc(name)}</h3>
       <a class="menu-item" role="menuitem" href="account.html">${PERSON}${esc(t('user.account'))}</a>
@@ -197,6 +219,7 @@ function mountUserMenu() {
 /** Call once per page, before rendering page content. `active` is the NAV id to highlight. */
 export function mountLayout(active) {
   applyI18n();
+  mountTopNav(active);
   mountSidebar(active);
   mountLangPicker();
   mountThemePicker();
