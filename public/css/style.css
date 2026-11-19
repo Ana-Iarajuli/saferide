@@ -1188,3 +1188,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0; }
 .map-hint.on { opacity: 1; }
 /* your own review: edit / delete right under it */
 .review-own-actions { display: flex; gap: 18px; margin-top: 10px; }
+/* your review, opened for editing in place */
+.review.is-editing .review-edit { display: grid; gap: 12px; margin-top: 12px; }
+.review-done { display: grid; gap: 10px; margin-bottom: 24px; }
+.review-done p { margin: 0; }

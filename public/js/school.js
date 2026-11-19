@@ -71,6 +71,67 @@ function renderPage() {
   pin(school, { active: true }).addTo(map);
 }
 
+// ---- reviews ----------------------------------------------------------------
+// The form above the list only writes a new review. Your own review is edited and deleted
+// in place, in the list; other people's reviews are read-only (the database enforces the
+// same rules, see supabase/schema.sql).
+
+let editing = false; // your review is open for editing in the list
+let flash = null; // one-off message shown after posting / saving / deleting
+
+/** Star picker + comment box, shared by the new-review form and the in-place editor. */
+function reviewFields(prefix, review) {
+  return `
+    <fieldset class="star-input">
+      <legend>${esc(t('reviews.ratingLabel'))}</legend>
+      <div class="star-row">
+        ${[5, 4, 3, 2, 1]
+          .map(
+            (n) => `<input type="radio" name="rating" id="${prefix}-star-${n}" value="${n}" ${review?.rating === n ? 'checked' : ''}>
+            <label for="${prefix}-star-${n}" title="${esc(t('reviews.star', { n }))}"><span aria-hidden="true">★</span><span class="sr-only">${esc(t('reviews.star', { n }))}</span></label>`,
+          )
+          .join('')}
+      </div>
+    </fieldset>
+    <label class="field">
+      <span class="field-label">${esc(t('reviews.comment'))}</span>
+      <textarea name="comment" rows="4" maxlength="1000">${esc(review?.comment ?? '')}</textarea>
+      <small class="field-hint">${esc(t('reviews.commentHint'))}</small>
+    </label>
+    <div class="form-msg" hidden></div>`;
+}
+
+const myReview = () => (user && reviews ? reviews.find((r) => r.user_id === user.id) : null);
+
+function showMsg(form, text, kind) {
+  const el = form.querySelector('.form-msg');
+  Object.assign(el, { textContent: text, className: `form-msg ${kind}`, hidden: !text });
+}
+
+/** Runs a database change, then reloads and redraws the reviews; `done` is the message to show. */
+async function save(form, change, done) {
+  form?.querySelectorAll('button').forEach((b) => (b.disabled = true));
+  try {
+    const { error } = await change();
+    if (error) throw error;
+    reviews = await loadReviews();
+    editing = false;
+    flash = done;
+    renderReviews();
+    renderForm();
+  } catch (e) {
+    console.error(e);
+    if (form) {
+      showMsg(form, t('reviews.error'), 'error');
+      form.querySelectorAll('button').forEach((b) => (b.disabled = false));
+    } else alert(t('reviews.error'));
+  }
+}
+
+function readFields(form) {
+  return { rating: Number(form.elements.rating.value), comment: form.elements.comment.value.trim() };
+}
+
 function renderReviews() {
   document.getElementById('school-rating').innerHTML = reviews ? ratingLine(summary()) : '';
   const list = document.getElementById('review-list');
@@ -87,32 +148,58 @@ function renderReviews() {
       const mine = user && r.user_id === user.id;
       const name = r.profiles?.username ?? '—';
       const edited = new Date(r.updated_at) - new Date(r.created_at) > 60000;
-      return `
-      <li class="review ${mine ? 'is-mine' : ''}">
+      const head = `
         <div class="review-head">
           <span class="avatar sm" aria-hidden="true">${esc(name.slice(0, 1).toUpperCase())}</span>
           <strong>${esc(name)}</strong>${mine ? ` <span class="muted">(${esc(t('reviews.you'))})</span>` : ''}
-          ${stars(r.rating, { size: 'sm' })}
+          ${mine && editing ? '' : stars(r.rating, { size: 'sm' })}
           <time class="muted" datetime="${esc(r.created_at)}">${esc(date(r.created_at))}${edited ? `, ${esc(t('reviews.edited'))}` : ''}</time>
-        </div>
-        ${r.comment ? `<p>${esc(r.comment)}</p>` : ''}
-        ${
-          // only the author gets controls; everyone else's reviews are read-only
-          // (the database enforces the same rule, see supabase/schema.sql)
-          mine
-            ? `<div class="review-own-actions">
-                 <button type="button" class="link-btn" data-edit>${esc(t('reviews.edit'))}</button>
-                 <button type="button" class="link-btn danger" data-delete-own>${esc(t('reviews.delete'))}</button>
-               </div>`
-            : ''
-        }
-      </li>`;
+        </div>`;
+      if (mine && editing) {
+        return `
+        <li class="review is-mine is-editing">
+          ${head}
+          <form class="review-edit" novalidate>
+            ${reviewFields('edit', r)}
+            <div class="review-actions">
+              <button type="submit" class="btn cta">${esc(t('reviews.save'))}</button>
+              <button type="button" class="link-btn" data-cancel>${esc(t('reviews.cancel'))}</button>
+            </div>
+          </form>
+        </li>`;
+      }
+      return `
+        <li class="review ${mine ? 'is-mine' : ''}">
+          ${head}
+          ${r.comment ? `<p>${esc(r.comment)}</p>` : ''}
+          ${
+            mine
+              ? `<div class="review-own-actions">
+                   <button type="button" class="link-btn" data-edit>${esc(t('reviews.edit'))}</button>
+                   <button type="button" class="link-btn danger" data-delete>${esc(t('reviews.delete'))}</button>
+                 </div>`
+              : ''
+          }
+        </li>`;
     })
     .join('')}</ol>`;
+
+  const editForm = list.querySelector('.review-edit');
+  if (editForm) {
+    editForm.elements.comment.focus();
+    editForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const { rating, comment } = readFields(editForm);
+      if (!rating) return showMsg(editForm, t('reviews.pickRating'), 'error');
+      save(editForm, () => client.from('school_reviews').update({ rating, comment }).eq('id', myReview().id), 'reviews.updated');
+    });
+  }
 }
 
 function renderForm() {
   const box = document.getElementById('review-form');
+  const note = flash ? `<div class="form-msg ok">${esc(t(flash))}</div>` : '';
+  flash = null;
   if (reviews === null) {
     box.innerHTML = '';
     return;
@@ -122,83 +209,42 @@ function renderForm() {
     box.innerHTML = `<p class="review-login">${esc(t('reviews.loginPrompt'))} <a class="btn btn-sm" href="account.html?next=${next}">${esc(t('reviews.login'))}</a></p>`;
     return;
   }
-  const mine = reviews.find((r) => r.user_id === user.id);
+  if (myReview()) {
+    // one review per person per school: once written, it is changed in the list, not here
+    box.innerHTML = `<div class="review-done">${note}<p class="muted">${esc(t('reviews.alreadyReviewed'))}</p></div>`;
+    return;
+  }
   box.innerHTML = `
+    ${note}
     <form class="review-form" novalidate>
-      <h3>${esc(t(mine ? 'reviews.editTitle' : 'reviews.formTitle'))}</h3>
-      <fieldset class="star-input">
-        <legend>${esc(t('reviews.ratingLabel'))}</legend>
-        <div class="star-row">
-          ${[5, 4, 3, 2, 1]
-            .map(
-              (n) => `<input type="radio" name="rating" id="star-${n}" value="${n}" ${mine?.rating === n ? 'checked' : ''}>
-              <label for="star-${n}" title="${esc(t('reviews.star', { n }))}"><span aria-hidden="true">★</span><span class="sr-only">${esc(t('reviews.star', { n }))}</span></label>`,
-            )
-            .join('')}
-        </div>
-      </fieldset>
-      <label class="field">
-        <span class="field-label">${esc(t('reviews.comment'))}</span>
-        <textarea name="comment" rows="4" maxlength="1000">${esc(mine?.comment ?? '')}</textarea>
-        <small class="field-hint">${esc(t('reviews.commentHint'))}</small>
-      </label>
-      <div class="form-msg" hidden></div>
+      <h3>${esc(t('reviews.formTitle'))}</h3>
+      ${reviewFields('new')}
       <div class="review-actions">
-        <button type="submit" class="btn cta">${esc(t(mine ? 'reviews.update' : 'reviews.post'))}</button>
-        ${mine ? `<button type="button" class="link-btn danger" data-delete>${esc(t('reviews.delete'))}</button>` : ''}
+        <button type="submit" class="btn cta">${esc(t('reviews.post'))}</button>
       </div>
     </form>`;
 
   const form = box.querySelector('form');
-  const msg = (text, kind) => {
-    const el = form.querySelector('.form-msg');
-    el.textContent = text;
-    el.className = `form-msg ${kind}`;
-    el.hidden = !text;
-  };
-  const run = async (fn, done) => {
-    form.querySelectorAll('button').forEach((b) => (b.disabled = true));
-    try {
-      const { error } = await fn();
-      if (error) throw error;
-      reviews = await loadReviews();
-      renderReviews();
-      renderForm(); // re-drawn: "Write" becomes "Update" after posting, and back after deleting
-      const note = document.querySelector('.review-form .form-msg');
-      if (note) Object.assign(note, { textContent: t(done), className: 'form-msg ok', hidden: false });
-    } catch (e) {
-      console.error(e);
-      msg(t('reviews.error'), 'error');
-      form.querySelectorAll('button').forEach((b) => (b.disabled = false));
-    }
-  };
-
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const rating = Number(form.elements.rating.value);
-    if (!rating) return msg(t('reviews.pickRating'), 'error');
-    run(
-      () =>
-        client
-          .from('school_reviews')
-          .upsert({ school_id: school.id, user_id: user.id, rating, comment: form.elements.comment.value.trim() }, { onConflict: 'school_id,user_id' }),
-      mine ? 'reviews.updated' : 'reviews.posted',
-    );
-  });
-  form.querySelector('[data-delete]')?.addEventListener('click', () => {
-    if (!confirm(t('reviews.confirmDelete'))) return;
-    run(() => client.from('school_reviews').delete().eq('id', mine.id), 'reviews.deleted');
+    const { rating, comment } = readFields(form);
+    if (!rating) return showMsg(form, t('reviews.pickRating'), 'error');
+    save(form, () => client.from('school_reviews').insert({ school_id: school.id, user_id: user.id, rating, comment }), 'reviews.posted');
   });
 }
 
-// the Edit / Delete buttons on your own review in the list act through the form above it
-document.addEventListener('click', (e) => {
+// Edit / Cancel / Delete on your own review in the list
+document.getElementById('school').addEventListener('click', (e) => {
   if (e.target.closest('[data-edit]')) {
-    const form = document.querySelector('.review-form');
-    form?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    form?.elements.comment.focus({ preventScroll: true });
+    editing = true;
+    renderReviews();
+  } else if (e.target.closest('[data-cancel]')) {
+    editing = false;
+    renderReviews();
+  } else if (e.target.closest('[data-delete]')) {
+    if (!confirm(t('reviews.confirmDelete'))) return;
+    save(null, () => client.from('school_reviews').delete().eq('id', myReview().id), 'reviews.deleted');
   }
-  if (e.target.closest('[data-delete-own]')) document.querySelector('.review-form [data-delete]')?.click();
 });
 
 async function boot() {
