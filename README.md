@@ -110,7 +110,7 @@ If a store fails during a refresh, its products from the previous run are kept a
   - never change an existing `id`: its reviews are stored under it.
   - to add a city, also add a `city.<id>` translation in `public/js/i18n.js`.
 - **Reviews** are stored in Supabase. Re-run `supabase/schema.sql` once (it is safe to re-run) to create the `school_reviews` table and `school_ratings` view. Anyone can read reviews. Only logged-in users can write one, one per school, and only the author can edit or delete it.
-- **Maps** use Leaflet and standard OpenStreetMap tiles (no API key). A CSS filter darkens the tiles to fit the themes.
+- **Maps** use Leaflet and standard OpenStreetMap tiles (no API key). A CSS filter darkens the tiles to fit the themes. Zoom with Ctrl + scroll (⌘ + scroll on a Mac); a plain scroll keeps scrolling the page. Each school's "Location" link opens Google Maps at its coordinates.
 - **Gear advice** is in `public/js/content/gear.js`. The rider diagram on that page is an SVG drawn in `public/js/gear-page.js`; each piece of gear is a group whose `data-part` matches a section `id` in the content file.
 
 ## Georiders

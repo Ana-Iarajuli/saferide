@@ -32,9 +32,7 @@ export const NAV = [
 ];
 
 const THEMES = [
-  { id: 'tron', name: 'Tron · Blue', colors: ['#2fe0ff', '#050b12'], bar: '#050b12' },
-  { id: 'tron-red', name: 'Tron · Red', colors: ['#ff4d5e', '#1e0d12'], bar: '#1e0d12' },
-  { id: 'tron-orange', name: 'Tron · Orange', colors: ['#ff9a3c', '#1b1007'], bar: '#1b1007' },
+  { id: 'tron', name: 'Tron · Blue', colors: ['#6cc9dd', '#0b1621'], bar: '#0b1621' },
   { id: 'classic', name: 'Classic', colors: ['#e4572e', '#f8f7f4'], bar: '#1c1c20' },
 ];
 
@@ -173,6 +171,11 @@ function mountThemePicker() {
     menu.querySelectorAll('[data-theme-id]').forEach((o) => o.setAttribute('aria-checked', o.dataset.themeId === theme.id));
   };
   apply(document.documentElement.dataset.theme);
+  // visitors who had picked a theme that no longer exists move to the default for good
+  try {
+    const saved = localStorage.getItem('theme');
+    if (saved && !THEMES.some((th) => th.id === saved)) localStorage.setItem('theme', THEMES[0].id);
+  } catch {}
   menu.addEventListener('click', (e) => {
     const id = e.target.closest('[data-theme-id]')?.dataset.themeId;
     if (!id) return;

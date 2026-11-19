@@ -5,11 +5,8 @@ export const CONTENT = {
   en: {
     title: 'Gear basics for new riders',
     lead: 'Good gear turns a fall into a story instead of a hospital visit. You do not need the most expensive kit, but every piece should carry a safety certification. Here is what to check, item by item.',
-    orderTitle: 'On a tight budget, buy in this order',
     figureLabel: 'A motorcycle rider in full gear. Choose a piece of gear to read about it.',
     explore: 'Point at a piece of gear, or tap it, to see how to choose it.',
-    readMore: 'Go to this section',
-    allTitle: 'All the advice in one list',
     look: 'Look for',
     skip: 'Skip',
     shop: 'See {category} on sale',
@@ -107,11 +104,8 @@ export const CONTENT = {
   ka: {
     title: 'ეკიპირების საფუძვლები დამწყებთათვის',
     lead: 'კარგი ეკიპირება დაცემას საავადმყოფოს ნაცვლად უბრალო ამბად აქცევს. ყველაზე ძვირი ეკიპირება არ გჭირდება, მაგრამ ყველა ნივთს უნდა ჰქონდეს უსაფრთხოების სერტიფიკატი. აქ არის, რა უნდა შეამოწმო, ნივთ-ნივთ.',
-    orderTitle: 'შეზღუდული ბიუჯეტით იყიდე ამ თანმიმდევრობით',
     figureLabel: 'მოტოციკლისტი სრული ეკიპირებით. აირჩიე ეკიპირების ნაწილი და წაიკითხე მის შესახებ.',
     explore: 'მიიტანე კურსორი ეკიპირების ნაწილზე ან შეეხე მას და ნახე, როგორ აირჩიო.',
-    readMore: 'ამ განყოფილებაზე გადასვლა',
-    allTitle: 'ყველა რჩევა ერთ სიაში',
     look: 'მიაქციე ყურადღება',
     skip: 'არ იყიდო',
     shop: 'ფასდაკლებები: {category}',
@@ -207,5 +201,5 @@ export const CONTENT = {
   },
 };
 
-// priority order for a tight budget (section ids)
+// the piece selected when the page opens comes first: the first thing to buy (section ids)
 export const BUY_ORDER = ['helmet', 'gloves', 'jacket', 'boots', 'trousers'];

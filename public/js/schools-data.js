@@ -53,8 +53,46 @@ export function makeMap(el, options = {}) {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
+  ctrlWheelZoom(map, el);
   return map;
 }
+
+/**
+ * Ctrl + scroll (⌘ + scroll on a Mac) zooms around the pointer; a plain scroll keeps scrolling
+ * the page and briefly shows how to zoom, so the map never traps someone scrolling past it.
+ */
+function ctrlWheelZoom(map, el) {
+  const key = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
+  const hint = document.createElement('div');
+  hint.className = 'map-hint';
+  hint.textContent = t('map.zoomHint', { key });
+  hint.setAttribute('aria-hidden', 'true');
+  el.append(hint);
+  let hideTimer;
+  let last = 0;
+  el.addEventListener(
+    'wheel',
+    (e) => {
+      if (!(e.ctrlKey || e.metaKey)) {
+        hint.classList.add('on');
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => hint.classList.remove('on'), 1200);
+        return;
+      }
+      e.preventDefault(); // stop the browser's own page zoom
+      hint.classList.remove('on');
+      // trackpads send many small wheel events; one zoom step per 120ms feels steady
+      if (Date.now() - last < 120 || !e.deltaY) return;
+      last = Date.now();
+      const zoom = map.getZoom() + (e.deltaY < 0 ? 1 : -1);
+      map.setZoomAround(map.mouseEventToContainerPoint(e), Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), zoom)));
+    },
+    { passive: false },
+  );
+}
+
+/** Google Maps link for a school's coordinates. */
+export const googleMapsUrl = (s) => `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
 
 export function pin(school, { active = false } = {}) {
   const L = window.L;

@@ -5,7 +5,7 @@ import { t, lang } from './i18n.js';
 import { mountLayout } from './layout.js';
 import { esc, safeUrl } from './shared.js';
 import { getClient, onUserChange, usernameOf } from './auth.js';
-import { loadSchools, schoolName, cityName, stars, ratingLine, makeMap, pin } from './schools-data.js';
+import { loadSchools, schoolName, cityName, stars, ratingLine, makeMap, pin, googleMapsUrl } from './schools-data.js';
 
 mountLayout('schools');
 
@@ -45,7 +45,7 @@ function renderPage() {
     [t('school.categories'), school.categories?.length ? esc(school.categories.join(', ')) : `<span class="muted">${esc(t('school.categoriesUnknown'))}</span>`],
     school.phone && [t('school.phone'), `<a href="tel:${esc(school.phone.replace(/\s/g, ''))}">${esc(school.phone)}</a>`],
     school.website && [t('school.website'), `<a href="${esc(safeUrl(school.website))}" target="_blank" rel="noopener noreferrer">${esc(school.website.replace(/^https?:\/\/(www\.)?/, ''))}</a>`],
-    [t('school.location'), `<a href="${esc(safeUrl(school.source))}" target="_blank" rel="noopener noreferrer">${esc(t('school.openMap'))}</a>`],
+    [t('school.location'), `<a href="${esc(googleMapsUrl(school))}" target="_blank" rel="noopener noreferrer">${esc(t('school.openMap'))}</a>`],
   ].filter(Boolean);
 
   root.innerHTML = `
@@ -96,6 +96,16 @@ function renderReviews() {
           <time class="muted" datetime="${esc(r.created_at)}">${esc(date(r.created_at))}${edited ? `, ${esc(t('reviews.edited'))}` : ''}</time>
         </div>
         ${r.comment ? `<p>${esc(r.comment)}</p>` : ''}
+        ${
+          // only the author gets controls; everyone else's reviews are read-only
+          // (the database enforces the same rule, see supabase/schema.sql)
+          mine
+            ? `<div class="review-own-actions">
+                 <button type="button" class="link-btn" data-edit>${esc(t('reviews.edit'))}</button>
+                 <button type="button" class="link-btn danger" data-delete-own>${esc(t('reviews.delete'))}</button>
+               </div>`
+            : ''
+        }
       </li>`;
     })
     .join('')}</ol>`;
@@ -175,8 +185,21 @@ function renderForm() {
       mine ? 'reviews.updated' : 'reviews.posted',
     );
   });
-  form.querySelector('[data-delete]')?.addEventListener('click', () => run(() => client.from('school_reviews').delete().eq('id', mine.id), 'reviews.deleted'));
+  form.querySelector('[data-delete]')?.addEventListener('click', () => {
+    if (!confirm(t('reviews.confirmDelete'))) return;
+    run(() => client.from('school_reviews').delete().eq('id', mine.id), 'reviews.deleted');
+  });
 }
+
+// the Edit / Delete buttons on your own review in the list act through the form above it
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-edit]')) {
+    const form = document.querySelector('.review-form');
+    form?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    form?.elements.comment.focus({ preventScroll: true });
+  }
+  if (e.target.closest('[data-delete-own]')) document.querySelector('.review-form [data-delete]')?.click();
+});
 
 async function boot() {
   try {

@@ -1,6 +1,6 @@
 // gear-guide.html: beginner gear advice, rendered from js/content/gear.js.
-// A full-body rider diagram leads the page: pointing at (or tapping, or tabbing to) a piece
-// of gear shows its advice in the panel beside it. The same advice follows as a plain list.
+// The page is a full-body rider diagram: pointing at (or tapping, or tabbing to) a piece
+// of gear shows its advice in the panel beside it.
 
 import { lang, tv } from './i18n.js';
 import { mountLayout } from './layout.js';
@@ -83,28 +83,7 @@ document.getElementById('doc').innerHTML = `
       </div>
       <div class="gear-card" id="gear-card" aria-live="polite"></div>
     </div>
-  </section>
-
-  <div class="buy-order">
-    <h2>${esc(c.orderTitle)}</h2>
-    <ol>${BUY_ORDER.map((id) => `<li><a href="#${id}">${esc(byId[id].title)}</a></li>`).join('')}</ol>
-  </div>
-
-  <h2 class="gear-all-title">${esc(c.allTitle)}</h2>
-  <div class="gear-sections">
-    ${c.sections
-      .map(
-        (s) => `
-      <section class="gear-item" id="${s.id}" aria-labelledby="${s.id}-title">
-        <h2 id="${s.id}-title">${esc(s.title)}</h2>
-        <p class="gear-intro">${esc(s.intro)}</p>
-        ${lists(s)}
-        <p class="gear-tip">${esc(s.tip)}</p>
-        ${shopLink(s)}
-      </section>`,
-      )
-      .join('')}
-  </div>`;
+  </section>`;
 
 // ---- diagram behaviour --------------------------------------------------------
 
@@ -127,7 +106,7 @@ function select(id) {
     <p class="gear-intro">${esc(s.intro)}</p>
     ${lists(s)}
     <p class="gear-tip">${esc(s.tip)}</p>
-    <p class="gear-card-links">${shopLink(s)}<a class="link-btn" href="#${s.id}">${esc(c.readMore)}</a></p>`;
+    ${shopLink(s)}`;
 }
 
 for (const p of parts) {
