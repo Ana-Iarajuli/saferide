@@ -3,7 +3,7 @@
 import { t, lang } from './i18n.js';
 import { mountLayout } from './layout.js';
 import { esc, safeUrl } from './shared.js';
-import { loadBikes, bikeName, licenceFor, licenceChip, specGroups, photoUrl, photoPage, videoThumb, categoryLabel } from './bikes-data.js';
+import { loadBikes, bikeName, licenceFor, licenceChip, specGroups, photoUrl, photoSrcset, photoPage, videoThumb, categoryLabel } from './bikes-data.js';
 
 mountLayout('reviews');
 
@@ -43,7 +43,7 @@ function coverFigure(b) {
   const p = b.photos[0];
   if (p) {
     return `<figure class="bike-cover">
-      <a href="${esc(photoPage(p))}" ${OUT}><img src="${esc(photoUrl(p, 960))}" alt="${esc(bikeName(b))}" referrerpolicy="no-referrer"></a>
+      <a href="${esc(photoPage(p))}" ${OUT}><img src="${esc(photoUrl(p, 500))}" srcset="${esc(photoSrcset(p, 500))}" sizes="(max-width: 900px) 100vw, 460px" alt="${esc(bikeName(b))}" fetchpriority="high" decoding="async" referrerpolicy="no-referrer" width="4" height="3"></a>
       <figcaption>${esc(t('bikes.photoCredit', { author: p.author, license: p.license }))}</figcaption>
     </figure>`;
   }
@@ -64,7 +64,7 @@ function mediaPanel(b, channel) {
         .map(
           (p) => `
         <figure>
-          <a href="${esc(photoPage(p))}" ${OUT}><img src="${esc(photoUrl(p, 1280))}" alt="${esc(bikeName(b))}" loading="lazy" referrerpolicy="no-referrer"></a>
+          <a href="${esc(photoPage(p))}" ${OUT}><img src="${esc(photoUrl(p, 960))}" srcset="${esc(photoSrcset(p, 960))}" sizes="(max-width: 700px) 100vw, 640px" alt="${esc(bikeName(b))}" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="4" height="3"></a>
           <figcaption>${esc(t('bikes.photoCredit', { author: p.author, license: p.license }))}</figcaption>
         </figure>`,
         )

@@ -104,14 +104,40 @@ export function specGroups(b) {
 
 // ---- media ----------------------------------------------------------------------
 
-export const photoUrl = (p, width = 960) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(p.file)}?width=${width}`;
+// Commons photos link straight to Wikimedia's cached thumbnails (no redirects). Wikimedia only
+// serves fixed widths, and never wider than the original, so requests snap to those steps.
+const THUMB_STEPS = [330, 500, 960, 1280, 1920];
+
+function thumbWidth(p, wanted) {
+  const fits = THUMB_STEPS.filter((w) => w <= p.width);
+  return fits.find((w) => w >= wanted) ?? fits.at(-1) ?? THUMB_STEPS[0];
+}
+
+export function photoUrl(p, width = 960) {
+  const name = p.path.split('/').pop();
+  return `https://upload.wikimedia.org/wikipedia/commons/thumb/${p.path}/${thumbWidth(p, width)}px-${name}`;
+}
+
+/** srcset with the standard size and the next one up, for sharp screens. */
+export function photoSrcset(p, width) {
+  const base = thumbWidth(p, width);
+  const big = thumbWidth(p, base * 1.9);
+  return big > base ? `${photoUrl(p, base)} ${base}w, ${photoUrl(p, big)} ${big}w` : `${photoUrl(p, base)} ${base}w`;
+}
+
 export const photoPage = (p) => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(p.file.replaceAll(' ', '_'))}`;
 export const videoThumb = (v) => `https://i.ytimg.com/vi/${encodeURIComponent(v.id)}/hqdefault.jpg`;
 
-/** Best picture for cards: the first Commons photo, else the official video's thumbnail. */
-export function coverImage(b, width = 640) {
-  if (b.photos[0]) return photoUrl(b.photos[0], width);
-  return b.video ? videoThumb(b.video) : null;
+/**
+ * <img> for a card: the first Commons photo (500px, 960px on sharp screens), else the official
+ * video's thumbnail. `eager` for images in the first visible row; the rest load as they scroll in.
+ */
+export function coverImg(b, { sizes = '(max-width: 560px) 100vw, 320px', eager = false } = {}) {
+  const p = b.photos[0];
+  const loading = eager ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
+  const common = `alt="" ${loading} decoding="async" referrerpolicy="no-referrer" width="4" height="3"`;
+  if (p) return `<img src="${esc(photoUrl(p, 500))}" srcset="${esc(photoSrcset(p, 500))}" sizes="${sizes}" ${common}>`;
+  return b.video ? `<img src="${esc(videoThumb(b.video))}" ${common}>` : '';
 }
 
 export const categoryLabel = (c) => t(`bikes.cat.${c}`);

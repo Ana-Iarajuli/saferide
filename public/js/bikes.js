@@ -3,7 +3,7 @@
 import { t } from './i18n.js';
 import { mountLayout } from './layout.js';
 import { esc } from './shared.js';
-import { loadBikes, bikeName, bikeUrl, licenceFor, licenceChip, powerText, coverImage, categoryLabel } from './bikes-data.js';
+import { loadBikes, bikeName, bikeUrl, licenceFor, licenceChip, powerText, coverImg, categoryLabel } from './bikes-data.js';
 
 mountLayout('reviews');
 document.title = t('bikes.pageTitle');
@@ -16,8 +16,7 @@ let bikes = [];
 const options = (values, label, current) =>
   `<option value="">${esc(label)}</option>` + values.map(([v, l]) => `<option value="${esc(v)}" ${v === current ? 'selected' : ''}>${esc(l)}</option>`).join('');
 
-function card(b) {
-  const img = coverImage(b);
+function card(b, i) {
   const s = b.specs;
   const facts = [
     s.displacement_cc != null && `${s.displacement_cc.toLocaleString()} cm³`,
@@ -27,7 +26,7 @@ function card(b) {
   ].filter(Boolean);
   return `
     <a class="bike-card" href="${bikeUrl(b)}">
-      <span class="bike-img">${img ? `<img src="${esc(img)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ''}</span>
+      <span class="bike-img">${coverImg(b, { eager: i < 4 })}</span>
       <span class="bike-body">
         <span class="bike-top"><span class="bike-make">${esc(b.make)}</span>${licenceChip(b)}</span>
         <strong>${esc(b.model)}</strong>
@@ -47,7 +46,7 @@ function render() {
       (!state.lic || licenceFor(b) === state.lic),
   );
   $('bike-count').textContent = t('bikes.count', { n: list.length });
-  $('bike-grid').innerHTML = list.length ? list.map(card).join('') : `<p class="ch-empty">${esc(t('bikes.none'))}</p>`;
+  $('bike-grid').innerHTML = list.length ? list.map((b, i) => card(b, i)).join('') : `<p class="ch-empty">${esc(t('bikes.none'))}</p>`;
   const u = new URLSearchParams(Object.entries(state).filter(([, v]) => v));
   history.replaceState(null, '', u.toString() ? `?${u}` : location.pathname);
 }

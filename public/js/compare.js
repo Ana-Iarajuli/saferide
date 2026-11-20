@@ -3,7 +3,7 @@
 import { t } from './i18n.js';
 import { mountLayout } from './layout.js';
 import { esc } from './shared.js';
-import { loadBikes, bikeName, bikeUrl, licenceChip, specGroups, coverImage } from './bikes-data.js';
+import { loadBikes, bikeName, bikeUrl, licenceChip, specGroups, coverImg } from './bikes-data.js';
 
 mountLayout('reviews');
 document.title = t('bikes.compareTitle');
@@ -30,10 +30,9 @@ function picker(id, selected) {
 
 function head(b) {
   if (!b) return `<div class="cmp-head is-empty"><span>${esc(t('bikes.pickHint'))}</span></div>`;
-  const img = coverImage(b);
   return `
     <a class="cmp-head" href="${bikeUrl(b)}">
-      <span class="bike-img">${img ? `<img src="${esc(img)}" alt="" referrerpolicy="no-referrer">` : ''}</span>
+      <span class="bike-img">${coverImg(b, { sizes: '(max-width: 640px) 50vw, 640px', eager: true })}</span>
       <span class="cmp-name"><span class="bike-make">${esc(b.make)}</span> <strong>${esc(b.model)}</strong> ${licenceChip(b)}</span>
     </a>`;
 }

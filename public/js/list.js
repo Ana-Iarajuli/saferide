@@ -217,7 +217,7 @@ function renderResults() {
     $('load-more').hidden = true;
     return;
   }
-  $('grid').innerHTML = list.slice(0, shown).map((p) => productCard(p, data)).join('');
+  $('grid').innerHTML = list.slice(0, shown).map((p, i) => productCard(p, data, i)).join('');
   $('load-more').hidden = list.length <= shown;
   $('load-more').textContent = t('results.more', { n: list.length - shown });
 }

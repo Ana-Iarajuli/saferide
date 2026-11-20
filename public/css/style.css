@@ -1293,3 +1293,10 @@ h1, h2, h3 { line-height: 1.15; margin: 0; }
   :root:lang(ka) .header-inner { display: flex; }
   :root:lang(ka) .header-inner > .header-tools { margin-left: auto; }
 }
+
+/* photos fade in as each one arrives (images load lazily, so a grid fills in picture by picture) */
+:is(.card-img, .bike-img, .video-thumb, .ch-newest, .bike-cover, .bike-photos) img { opacity: 0; transition: opacity 0.35s ease; }
+:is(.card-img, .bike-img, .video-thumb, .ch-newest, .bike-cover, .bike-photos) img.is-loaded { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  :is(.card-img, .bike-img, .video-thumb, .ch-newest, .bike-cover, .bike-photos) img { transition: none; }
+}

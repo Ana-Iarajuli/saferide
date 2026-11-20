@@ -219,6 +219,13 @@ function mountUserMenu() {
   onUserChange((user) => renderUserMenu(box, user));
 }
 
+// Card photos load lazily as they scroll into view; each fades in when it arrives (see .is-loaded
+// in style.css), so a grid fills in one picture at a time instead of popping. A photo that fails
+// to load is marked too, so its card shows the plain placeholder instead of staying invisible.
+const markLoaded = (e) => e.target.tagName === 'IMG' && e.target.classList.add('is-loaded');
+document.addEventListener('load', markLoaded, true);
+document.addEventListener('error', markLoaded, true);
+
 /** Call once per page, before rendering page content. `active` is the NAV id to highlight. */
 export function mountLayout(active) {
   applyI18n();

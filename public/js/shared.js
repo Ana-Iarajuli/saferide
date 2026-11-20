@@ -96,13 +96,40 @@ export const priceHtml = (p, html) => (p.priceFrom ? t('price.from', { price: ht
 export const catLabel = (c) => tv('cat', c);
 export const genderLabel = (g) => tv('gender', g);
 
-export function productCard(p, data) {
+/** Same image at another width, for the image CDNs that resize on request (Shopify, Dainese's Thron). */
+function sizedImage(url, width) {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'cdn.shopify.com') u.searchParams.set('width', width);
+    else if (u.hostname.endsWith('.thron.com')) {
+      u.searchParams.set('w', width);
+      u.searchParams.set('h', width);
+    } else return null;
+    return u.href;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Card photo: 480px (800px on sharp screens) where the store's CDN can resize, instead of the
+ * full-size original. `eager` for the first visible row; the rest load as they scroll into view.
+ */
+function cardImg(url, eager) {
+  const small = sizedImage(url, 480);
+  const sized = small ? `src="${esc(small)}" srcset="${esc(small)} 480w, ${esc(sizedImage(url, 800))} 800w" sizes="(max-width: 480px) 50vw, 260px"` : `src="${esc(url)}"`;
+  const loading = eager ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
+  return `<img ${sized} alt="" ${loading} decoding="async" referrerpolicy="no-referrer" width="1" height="1">`;
+}
+
+/** `index` is the card's position in its grid: the first row (4 cards) loads first. */
+export function productCard(p, data, index = 99) {
   const store = data.storeById[p.source];
   const img = p.images[0];
   return `
     <a class="card" href="product.html?id=${encodeURIComponent(p.id)}">
       <div class="card-img">
-        ${img ? `<img src="${esc(img)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<div class="no-img">${esc(t('card.noImage'))}</div>`}
+        ${img ? cardImg(img, index < 4) : `<div class="no-img">${esc(t('card.noImage'))}</div>`}
         ${p.discountPct > 0 ? `<span class="badge-disc">−${p.discountPct}%</span>` : ''}
       </div>
       <div class="card-body">
