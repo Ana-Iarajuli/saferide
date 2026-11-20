@@ -11,7 +11,8 @@ A site for motorcycle riders in Georgia. Right now it has:
   - **Riding schools** (`schools.html`): schools on a map of Georgia plus a card for each. Each card opens a detail page (`school.html?id=…`) where logged-in users can leave a star rating and comment.
   - **Gear basics** (`gear-guide.html`): what to look for in each piece of gear, with links to that category on the Sales page.
 - **Georiders** (`georiders.html`): motorcycle YouTubers, Georgian first, then international, filterable by topic (reviews, riding technique, gear, maintenance, travel, motorsport, news), with their newest videos.
-- **Placeholder sections** in the top navigation (dimmed until they open): Reviews, Where to practice.
+- **Reviews** (`reviews.html`): a motorcycle finder (search, type, make, licence category), a page per bike (`bike.html?id=…`) with specs, the official video and photos, and a side-by-side comparison (`compare.html?a=…&b=…`).
+- **Placeholder section** in the top navigation (dimmed until it opens): Where to practice.
 
 ## Run
 
@@ -113,6 +114,14 @@ If a store fails during a refresh, its products from the previous run are kept a
 - **Maps** use Leaflet and standard OpenStreetMap tiles (no API key). A CSS filter darkens the tiles to fit the themes. Zoom with Ctrl + scroll (⌘ + scroll on a Mac); a plain scroll keeps scrolling the page. Each school's "Location" link opens Google Maps at its coordinates.
 - **Gear advice** is in `public/js/content/gear.js`. The rider diagram on that page is an SVG drawn in `public/js/gear-page.js`; each piece of gear is a group whose `data-part` matches a section `id` in the content file.
 
+## Motorcycles (Reviews section)
+
+- **Bikes** are in `public/content/bikes.json`. Every spec comes from the manufacturer's own spec page, linked in `source`; `null` means the page doesn't state it. Never fill a value from memory or from magazines or spec aggregators (their data is licensed, and often wrong).
+- **Power** is stored exactly as the maker states it, in kW, PS or hp. The site converts it only to work out the licence category: A1 up to 125 cm³ and 11 kW, A2 up to 35 kW, A above that. `a2` holds the maker's own wording about an A2 or 35 kW version.
+- **Videos** are IDs of videos on the maker's official YouTube channel (no API key needed). The channel links are in `channels`. When there is no current official video, set `video` to `null` and the page links to the channel instead.
+- **Photos** are Wikimedia Commons file names with author and licence. They are shown with credit and link to their Commons page. A bike with no photo uses its video's thumbnail.
+- **Not included yet**: Yamaha and CFMoto (their sites only render in a browser), BMW (its site timed out), other Triumph models (blocked), Suzuki SV650 (discontinued) and Royal Enfield Interceptor 650 (no spec table). Add them from the official spec pages when you can open them.
+
 ## Georiders
 
 - **Channels** are listed by hand in `public/content/riders.json`: YouTube channel id, @handle, name, `from` (`ge` or `intl`), topics, an optional `store: true` for shop or dealer channels, and a short description in English and Georgian. Before adding a channel, check its feed at `https://www.youtube.com/feeds/videos.xml?channel_id=<id>`. YouTube auto-translates channel names in search results, so a Georgian-looking name can belong to a foreign channel; the feed shows the real name and the language of its video titles.
@@ -149,7 +158,10 @@ public/school.html           school details + reviews        (js/school.js)
 public/gear-guide.html       gear advice                     (js/gear-page.js, js/content/gear.js)
 public/content/schools.json  the school list (edit by hand)
 public/georiders.html        YouTubers + newest videos      (js/georiders.js, content/riders.json, scripts/fetch-riders.js)
-public/{reviews,practice}.html   placeholder sections (js/page.js)
+public/reviews.html          motorcycle finder               (js/bikes.js, js/bikes-data.js, content/bikes.json)
+public/bike.html             one bike: specs, video, photos  (js/bike.js)
+public/compare.html          two bikes side by side          (js/compare.js)
+public/practice.html         placeholder section (js/page.js)
 public/js/layout.js          top navigation (drawer on small screens), language / theme pickers, account menu
 public/js/i18n.js            translations
 ```

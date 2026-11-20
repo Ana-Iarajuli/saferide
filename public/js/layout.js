@@ -25,7 +25,7 @@ export const NAV = [
       { id: 'gear', href: 'gear-guide.html' },
     ],
   },
-  { id: 'reviews', href: 'reviews.html', soon: true, icon: icon('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>') },
+  { id: 'reviews', href: 'reviews.html', icon: icon('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>') },
   { id: 'sales', href: 'sales.html', icon: icon('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8" r="1.5"/>') },
   { id: 'practice', href: 'practice.html', soon: true, icon: icon('<path d="M9.5 4h5l4 15h-13z"/><path d="M8 10h8M7 15h10M3 20h18"/>') },
   { id: 'georiders', href: 'georiders.html', icon: icon('<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9v6l5-3z"/>') },

@@ -12,14 +12,14 @@
       document.documentElement.dataset.theme = 'tron';
     }
   </script>
-  <title data-i18n="reviews.title">SafeRide</title>
+  <title data-i18n="bikes.pageTitle">Motorcycles — SafeRide</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&family=Noto+Sans+Georgian:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body data-page="reviews">
+<body>
   <header class="site-header">
     <div class="header-inner">
       <button type="button" class="icon-btn nav-toggle" id="nav-toggle" aria-controls="sidebar" aria-expanded="false" aria-label="Open menu" data-i18n-aria-label="nav.open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -35,7 +35,24 @@
   <div class="shell">
     <nav class="sidebar" id="sidebar"></nav>
     <div class="page">
-      <main class="wrap soon-page" id="page"></main>
+      <main class="wrap bikes-page">
+        <header class="doc-head">
+          <h1 data-i18n="bikes.title">Find your motorcycle</h1>
+          <p class="doc-lead" data-i18n="bikes.lead"></p>
+        </header>
+        <form class="bike-filters" id="bike-filters" role="search">
+          <input id="f-q" type="search" placeholder="Search by name" data-i18n-placeholder="bikes.search" aria-label="Search by name" data-i18n-aria-label="bikes.search" autocomplete="off">
+          <select id="f-cat" aria-label="Type" data-i18n-aria-label="bikes.allTypes"></select>
+          <select id="f-make" aria-label="Make" data-i18n-aria-label="bikes.allMakes"></select>
+          <select id="f-lic" aria-label="Licence" data-i18n-aria-label="bikes.anyLicence"></select>
+        </form>
+        <div class="bikes-toolbar">
+          <p class="muted" id="bike-count"></p>
+          <a class="link-btn" href="compare.html" data-i18n="bikes.compareLink">Compare two bikes</a>
+        </div>
+        <div class="bike-grid" id="bike-grid"></div>
+        <p class="muted riders-suggest" data-i18n="bikes.sourcesNote"></p>
+      </main>
 
       <footer class="site-footer">
         <div class="wrap">
@@ -45,6 +62,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/page.js"></script>
+  <script type="module" src="js/bikes.js"></script>
 </body>
 </html>
